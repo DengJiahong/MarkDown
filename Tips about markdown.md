@@ -131,6 +131,8 @@ $\overline{ABCD}$
 
 空集，符号：\emptyset，如：$\emptyset$
 
+$\sqsubseteq , \sqsupseteq, \models, \bot,\top, \sqcap, \sqcup, \mathbb{I},\mathbf{I} ，\mathcal{I}, \mathclap{I}$
+$\forall, \exist, \neg,\lor,\land,\nvDash$
 ###　数学符号
 
 无穷，符号：\infty，如：$\infty$

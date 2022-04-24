@@ -26,61 +26,6 @@
 以下为对代码的详细介绍:
 
 ```Java
-
-package controllers.depthfirst;
-
-import core.game.Observation;
-import core.game.StateObservation;
-import ontology.Types;
-import ontology.effects.unary.TurnAround;
-import tools.ElapsedCpuTimer;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-
-public class Agent extends controllers.sampleRandom.Agent{
-    //searchedActionsList存储搜索到结果(成功的路径)
-    protected  List<Types.ACTIONS> searchedActionsList = null;
-
-    public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer){
-        super(so,elapsedTimer);
-    }
-    //框架代码每次调用act函数获得一个动作
-    public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
-
-        ArrayList<Observation>[] npcPositions = stateObs.getNPCPositions();
-        ArrayList<Observation>[] fixedPositions = stateObs.getImmovablePositions();
-        ArrayList<Observation>[] movingPositions = stateObs.getMovablePositions();
-        ArrayList<Observation>[] resourcesPositions = stateObs.getResourcesPositions();
-        ArrayList<Observation>[] portalPositions = stateObs.getPortalsPositions();
-        grid = stateObs.getObservationGrid();
-
-        /*printDebug(npcPositions,"npc");
-        printDebug(fixedPositions,"fix");
-        printDebug(movingPositions,"mov");
-        printDebug(resourcesPositions,"res");
-        printDebug(portalPositions,"por");
-        System.out.println();               */
-
-        Types.ACTIONS action = null; //存储待返回的单个动作
-        StateObservation stCopy = stateObs.copy(); // 拷贝当前状态用于搜索
-
-        if(searchedActionsList==null){
-            //若还未搜索过则进行搜索
-            searchedActionsList=depthFirstSearch(stCopy,elapsedTimer);
-        }
-
-        if(searchedActionsList.size()>0)
-            //已搜索过, 返回搜索结果的单个动作
-            action =searchedActionsList.remove(0);
-
-        System.out.print(action);//打印动作, 用于观察和debug
-        System.out.print(" ");
-
-        return action;
-    }
     //深度优先搜索算法实现函数
     private List<Types.ACTIONS> depthFirstSearch(StateObservation stCopy,ElapsedCpuTimer elapsedTimer) {
         LinkedList<Types.ACTIONS> searchedActions = new LinkedList<Types.ACTIONS>();//存储搜索结果
@@ -91,17 +36,9 @@ public class Agent extends controllers.sampleRandom.Agent{
         LinkedList<Node> closed = new LinkedList<Node>(); //遍历过的节点的数组
         fringe.add(root);// 将根节点加入待遍历数组
 
-        //以下几个变量用于计时
-        double avgTimeTaken = 0;
-        double acumTimeTaken = 0;
-        long remaining = elapsedTimer.remainingTimeMillis();
-        int numIters = 0;
-        int remainingLimit = 5;
-
         //while循环不断取出fringe的节点直到成功
         while(fringe.size()>0&&remaining > 2*avgTimeTaken && remaining > remainingLimit){
-            //每次取出一个节点前记录时间
-            ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
+          
             Node node = fringe.remove();//取出第一个节点
             closed.add(node);//将该节点加入已遍历节点数组
 
@@ -133,13 +70,6 @@ public class Agent extends controllers.sampleRandom.Agent{
                 }
             }
 
-            //以下记录时间,用于判断是否超时
-            numIters++;
-            acumTimeTaken += (elapsedTimerIteration.elapsedMillis()) ;
-            //System.out.println(elapsedTimerIteration.elapsedMillis() + " --> " + acumTimeTaken + " (" + remaining + ")");
-            avgTimeTaken  = acumTimeTaken/numIters;
-            remaining = elapsedTimer.remainingTimeMillis();
-        }
         //返回搜索结果
         return searchedActions;
     }
@@ -211,61 +141,6 @@ public class Agent extends controllers.sampleRandom.Agent{
 以下为对代码的详细介绍:
 
 ```Java
-
-package controllers.limitdepthfirst;
-
-import core.game.Observation;
-import core.game.StateObservation;
-import ontology.Types;
-import ontology.effects.unary.TurnAround;
-import tools.ElapsedCpuTimer;
-import tools.Vector2d;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-
-public class Agent extends controllers.sampleRandom.Agent{
-    //searchedActionsList存储搜索到结果
-    protected  List<Types.ACTIONS> searchedActionsList = null;
-
-    public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer){
-        super(so,elapsedTimer);
-    }
-    //框架代码每次调用act函数获得一个动作
-    public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
-
-        ArrayList<Observation>[] npcPositions = stateObs.getNPCPositions();
-        ArrayList<Observation>[] fixedPositions = stateObs.getImmovablePositions();
-        ArrayList<Observation>[] movingPositions = stateObs.getMovablePositions();
-        ArrayList<Observation>[] resourcesPositions = stateObs.getResourcesPositions();
-        ArrayList<Observation>[] portalPositions = stateObs.getPortalsPositions();
-        grid = stateObs.getObservationGrid();
-
-        /*printDebug(npcPositions,"npc");
-        printDebug(fixedPositions,"fix");
-        printDebug(movingPositions,"mov");
-        printDebug(resourcesPositions,"res");
-        printDebug(portalPositions,"por");
-        System.out.println();               */
-
-        Types.ACTIONS action = null;//存储待返回的单个动作
-        StateObservation stCopy = stateObs.copy();// 拷贝当前状态用于搜索
-
-        if(searchedActionsList==null){
-            //若还未搜索过则进行搜索
-            searchedActionsList=limiteddepthFirstSearch(stCopy,elapsedTimer);
-        }
-
-        if(searchedActionsList.size()>0)
-            //已搜索过, 返回搜索结果的单个动作
-            action =searchedActionsList.remove(0);
-        System.out.print(action);//打印动作, 用于观察和debug
-        System.out.print(" ");
-        return action;
-    }
-
     //深度受限的深度优先搜索算法实现函数
     private List<Types.ACTIONS> limiteddepthFirstSearch(StateObservation stCopy,ElapsedCpuTimer elapsedTimer) {
         LinkedList<Types.ACTIONS> searchedActions = new LinkedList<Types.ACTIONS>();//存储搜索结果
@@ -277,17 +152,9 @@ public class Agent extends controllers.sampleRandom.Agent{
         root.cost= root.informed();//根节点的评估结果
         fringe.add(root);// 将根节点加入待遍历数组
 
-        //以下几个变量用于计时
-        double avgTimeTaken = 0;
-        double acumTimeTaken = 0;
-        long remaining = elapsedTimer.remainingTimeMillis();
-        int numIters = 0;
-        int remainingLimit = 5;
-
         //while循环不断取出fringe的节点直到成功
         while(fringe.size()>0&&remaining > 2*avgTimeTaken && remaining > remainingLimit){
-            //每次取出一个节点前记录时间
-            ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
+           
             Node node = fringe.remove();//取出第一个节点
             closed.add(node);//将该节点加入已遍历节点数组
 
@@ -317,13 +184,6 @@ public class Agent extends controllers.sampleRandom.Agent{
                     }
                 }
             }
-            //以下记录时间,用于判断是否超时
-            numIters++;
-            acumTimeTaken += (elapsedTimerIteration.elapsedMillis()) ;
-            //System.out.println(elapsedTimerIteration.elapsedMillis() + " --> " + acumTimeTaken + " (" + remaining + ")");
-            avgTimeTaken  = acumTimeTaken/numIters;
-            remaining = elapsedTimer.remainingTimeMillis();
-        }
 
         //因不满足限制条件而结束搜索时, 寻找最优节点(即cost值最小的节点)
         Double min_num=closed.get(0).cost;
@@ -404,7 +264,7 @@ public class Agent extends controllers.sampleRandom.Agent{
                 StateObservation s = state.copy();//复制当前节点的状态, 用于生成子节点状态
                 s.advance(a.get(i));
                 Node n = new Node(s); //子节点
-                n.cost=n.informed(); //对子节点进行评估
+                n.cost=n.informed(); ////对子节点进行评估
                 n.parent = this;  //当前节点为子节点的父节点
                 n.pre_action = a.get(i); // 记录当前节点到子节点的动作
                 subnodes.add(n);
@@ -458,58 +318,6 @@ $f(n)=g(n)+h(n), f(n)=总开销, g(n)=从根节点到当前节点的开销, h(n)
 以下为对代码的详细介绍:
 
 ```Java
-
-package controllers.Astar;
-
-import core.game.Observation;
-import core.game.StateObservation;
-import ontology.Types;
-import ontology.effects.unary.TurnAround;
-import tools.ElapsedCpuTimer;
-import tools.Vector2d;
-
-import java.util.*;
-
-public class Agent extends controllers.sampleRandom.Agent{
-    //searchedActionsList存储搜索到结果
-    protected  List<Types.ACTIONS> searchedActionsList = null;
-
-    public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer){
-        super(so,elapsedTimer);
-    }
-    //框架代码每次调用act函数获得一个动作
-    public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
-
-        ArrayList<Observation>[] npcPositions = stateObs.getNPCPositions();
-        ArrayList<Observation>[] fixedPositions = stateObs.getImmovablePositions();
-        ArrayList<Observation>[] movingPositions = stateObs.getMovablePositions();
-        ArrayList<Observation>[] resourcesPositions = stateObs.getResourcesPositions();
-        ArrayList<Observation>[] portalPositions = stateObs.getPortalsPositions();
-        grid = stateObs.getObservationGrid();
-
-        /*printDebug(npcPositions,"npc");
-        printDebug(fixedPositions,"fix");
-        printDebug(movingPositions,"mov");
-        printDebug(resourcesPositions,"res");
-        printDebug(portalPositions,"por");
-        System.out.println();               */
-
-        Types.ACTIONS action = null;//存储待返回的单个动作
-        StateObservation stCopy = stateObs.copy();// 拷贝当前状态用于搜索
-
-        if(searchedActionsList==null){
-            //若还未搜索过则进行搜索
-            searchedActionsList=Astar(stCopy,elapsedTimer);
-        }
-
-        if(searchedActionsList.size()>0)
-            //已搜索过, 返回搜索结果的单个动作
-            action =searchedActionsList.remove(0);
-        System.out.print(action);//打印动作, 用于观察和debug
-        System.out.print(" ");
-        return action;
-    }
-
     //A*算法实现函数
     private List<Types.ACTIONS> Astar(StateObservation stCopy,ElapsedCpuTimer elapsedTimer) {
         LinkedList<Types.ACTIONS> searchedActions = new LinkedList<Types.ACTIONS>();//存储搜索结果
@@ -522,17 +330,9 @@ public class Agent extends controllers.sampleRandom.Agent{
         root.tot_cost=root.informed();//根节点的评估结果
         fringe.add(root);// 将根节点加入待遍历队列
 
-        //以下几个变量用于计时
-        double avgTimeTaken = 0;
-        double acumTimeTaken = 0;
-        long remaining = elapsedTimer.remainingTimeMillis();
-        int numIters = 0;
-        int remainingLimit = 5;
-
         //while循环不断取出fringe的节点直到成功
         while(fringe.size()>0&&remaining > 2*avgTimeTaken && remaining > remainingLimit){
-            //每次取出一个节点前记录时间
-            ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
+   
             Node node = fringe.poll();//取出第一个节点
             closed.add(node);//将该节点加入已遍历节点数组
             if(node.state.getGameWinner()==Types.WINNER.PLAYER_WINS){
@@ -564,12 +364,6 @@ public class Agent extends controllers.sampleRandom.Agent{
                     }
                 }
             }
-            //以下记录时间,用于判断是否超时
-            numIters++;
-            acumTimeTaken += (elapsedTimerIteration.elapsedMillis()) ;
-            //System.out.println(elapsedTimerIteration.elapsedMillis() + " --> " + acumTimeTaken + " (" + remaining + ")");
-            avgTimeTaken  = acumTimeTaken/numIters;
-            remaining = elapsedTimer.remainingTimeMillis();
         }
 
         //因不满足限制条件而结束搜索时, 寻找最优节点(即tot_cost值最小的节点)
@@ -711,7 +505,7 @@ public class Agent extends controllers.sampleRandom.Agent{
                 s.advance(a.get(i));
                 Node n = new Node(s);//子节点
                 n.parent = this;//当前节点为子节点的父节点
-                n.pre_cost=n.parent.pre_cost+50; //子节点的已有开销为父节点的已有开销+50(即走一步)
+                n.pre_cost=n.parent.pre_cost+50; ////子节点的已有开销为父节点的已有开销+50(即走一步)
                 n.pre_action = a.get(i);// 记录当前节点到子节点的动作
                 //计算评估的开销
                 if(!n.state.isGameOver()){
@@ -750,6 +544,7 @@ public class Agent extends controllers.sampleRandom.Agent{
 
 **蒙特卡洛树搜索算法:**
 首先以当前状态构造根节点, 接着在限制条件未达到前, 进行搜索, 不断重复进行以下步骤: 
+
 * 令当前节点为根节点, 若当前节点不是叶节点, 则令当前节点= **uct** 值最大的子节点, 直至当前节点为叶节点;
 *  此时, 若当前节点已访问过, 则将当前节点扩展并添加到树中, 当前节点=第一个新节点, 再进行**rollOut**, 若当前节点未访问过, 则直接进行**rollOut**;
 *  进行**backUp**: 若rollOut的结果是胜利, 则路径上的所有节点遍历次数+1, 值+HUGE_POSITIVE, 若失败, 则路径上的所有节点遍历次数+1, 值-HUGE_NEGATIVE. 
